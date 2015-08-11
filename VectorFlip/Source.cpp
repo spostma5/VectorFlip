@@ -37,6 +37,7 @@ void printVector(const vector<int>& vect)
 	cout << endl;
 }
 
+// Check if index is unaccesible
 bool locsContains(const array<int,SIZE_OF_CORRUPTS> locs, const int& index)
 {
 	for (int loc : locs)
@@ -69,20 +70,16 @@ vector<int> corruptSwap(const vector<int>& vect, const array<int,SIZE_OF_CORRUPT
 
 	for (int i = vect.size() - 1; i > -1; i--)
 	{
-		if (locsContains(locs, i))
-			continue;
-		flippedVect.push_back(vect[i]);
+		if (!locsContains(locs, i))
+			flippedVect.push_back(vect[i]);
 	}
 
-	int skipped = 0;
-	for (int i = 0; i < vect.size(); i++)
+	for (int i = 0, skipped = 0; i < vect.size(); i++)
 	{
 		if (locsContains(locs, i))
-		{
 			++skipped;
-			continue;
-		}
-		returnVect[i] = flippedVect[i-skipped];
+		else
+			returnVect[i] = flippedVect[i-skipped];
 	}
 
 	return returnVect;
@@ -93,6 +90,7 @@ vector<int> optimizedSwap(const vector<int>& vect, const array<int, SIZE_OF_CORR
 {
 	vector<int> returnVect(vect);
 
+	// Loop until the back index if before the front
 	for (int frontOffset = 0, backOffset = returnVect.size()-1; backOffset >= frontOffset;)
 	{
 		if (locsContains(locs, frontOffset))
@@ -106,9 +104,10 @@ vector<int> optimizedSwap(const vector<int>& vect, const array<int, SIZE_OF_CORR
 			continue;
 		}
 
-		int temp = vect[frontOffset];
-		returnVect[frontOffset] = returnVect[backOffset];
-		returnVect[backOffset] = temp;
+		// Move used to increase efficiency; less copying
+		int temp = move(vect[frontOffset]);
+		returnVect[frontOffset] = move(returnVect[backOffset]);
+		returnVect[backOffset] = move(temp);
 
 		++frontOffset;
 		--backOffset;
